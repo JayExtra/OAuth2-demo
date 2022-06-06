@@ -12,9 +12,13 @@ interface AuthApi {
     suspend fun signUp( @Body signUpRequest: SignUpRequest) : SignUpResponse
 
     @POST("auth/login")
-    @FormUrlEncoded
     suspend fun signInUser(
-        @Field("email") email : String ,
-        @Field("password") password : String
+       @Body loginRequest: LoginRequest
+    ) : LoginResponse
+
+    @POST("auth/token/refresh")
+    @FormUrlEncoded
+    suspend fun refreshTokens(
+        @Field("refresh_token") refreshToken : String
     ) : LoginResponse
 }

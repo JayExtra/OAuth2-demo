@@ -1,6 +1,7 @@
 package com.dev.james.oauthdemoapp.data.repository
 
 import com.dev.james.oauthdemoapp.constants.NetworkResource
+import com.dev.james.oauthdemoapp.data.model.LoginRequest
 import com.dev.james.oauthdemoapp.data.model.LoginResponse
 import com.dev.james.oauthdemoapp.data.model.SignUpRequest
 import com.dev.james.oauthdemoapp.data.model.SignUpResponse
@@ -20,7 +21,11 @@ class AuthRepository @Inject constructor(
         api.signUp(signUpRequest)
     }
 
-    suspend fun signInUser(email : String , password : String) : NetworkResource<LoginResponse> = safeApiCall {
-        api.signInUser(email = email , password = password)
+    suspend fun signInUser(loginRequest: LoginRequest) : NetworkResource<LoginResponse> = safeApiCall {
+        api.signInUser(loginRequest)
+    }
+
+    suspend fun refreshTokens(refreshToken : String) : NetworkResource<LoginResponse> = safeApiCall {
+        api.refreshTokens(refreshToken)
     }
 }

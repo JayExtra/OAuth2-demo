@@ -18,6 +18,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import okhttp3.ResponseBody
+import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel
@@ -102,12 +104,17 @@ class SignUpScreenViewModel @Inject constructor(
             }
             is NetworkResource.Failure -> {
                 Log.d("SignUpViewModel", "signUpUserFailure: ${result.errorBody?.byteStream().toString()} ")
-                validationAndAuthEventChannel.send(
-                    ValidationAndAuthentificationEvent.Failure(
-                        errorCode = result.errorCode,
-                        errorMessage = result.errorBody.toString()
+
+                if(result.errorBody != null && result.errorCode != null){
+                    val errorMessage = result.errorBody.toString()
+
+                    validationAndAuthEventChannel.send(
+                        ValidationAndAuthentificationEvent.Failure(
+                            errorCode = result.errorCode,
+                            errorMessage = errorMessage
+                        )
                     )
-                )
+                }
             }
             is NetworkResource.Loading -> {
                 state = state.copy(showProgressBar = true)

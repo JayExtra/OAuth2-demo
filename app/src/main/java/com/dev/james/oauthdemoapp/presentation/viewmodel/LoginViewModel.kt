@@ -1,5 +1,6 @@
 package com.dev.james.oauthdemoapp.presentation.viewmodel
 
+import android.util.Log
 import android.util.Patterns
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.setValue
@@ -7,25 +8,53 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dev.james.oauthdemoapp.constants.NetworkResource
+import com.dev.james.oauthdemoapp.data.local.datastore.DatastoreManager
+import com.dev.james.oauthdemoapp.data.local.datastore.PrefKeysManager
+import com.dev.james.oauthdemoapp.data.model.LoginRequest
+import com.dev.james.oauthdemoapp.data.model.LoginResponse
 import com.dev.james.oauthdemoapp.domain.SignInUsecase
 import com.dev.james.oauthdemoapp.domain.ValidationResults
+import com.dev.james.oauthdemoapp.domain.session.SessionManager
 import com.dev.james.oauthdemoapp.presentation.screens.LoginScreenEvents
 import com.dev.james.oauthdemoapp.presentation.screens.LoginScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import okhttp3.ResponseBody
+import org.json.JSONObject
 import javax.inject.Inject
+import kotlin.coroutines.CoroutineContext
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
-    private val signInUsecase: SignInUsecase
+    private val signInUsecase: SignInUsecase ,
+    private val dataStoreManager : DatastoreManager ,
+    private val sessionManager: SessionManager
 ) : ViewModel() {
 
     var state by mutableStateOf(LoginScreenState())
 
     private var loginValidationAuthEvents = Channel<LoginScreenValidationAndAuthEvent>()
     val loginValidationAuthEventsChannel = loginValidationAuthEvents.receiveAsFlow()
+
+    /**
+  init {
+        val accessToken = dataStoreManager.readAccessToken(PrefKeysManager.ACCESS_TOKEN)
+        val refreshToken = dataStoreManager.readRefreshToken(PrefKeysManager.REFRESH_TOKEN)
+
+        CoroutineScope(Dispatchers.IO).launch {
+            refreshToken.collect {
+                Log.d("LoginViewModel", "access and refresh tokens: $it")
+            }
+        }
+    }
+  **/
+
+
 
 
     fun onEvent( event : LoginScreenEvents) {
@@ -62,22 +91,40 @@ class LoginViewModel @Inject constructor(
     }
 
     fun signInUser() = viewModelScope.launch {
-        val result = signInUsecase.sigInWithEmailAndPassWord(state.email , state.password)
+        val loginRequest = LoginRequest(
+            email = state.email,
+            password = state.password
+        )
+        val result = signInUsecase.sigInWithEmailAndPassWord(loginRequest)
 
         when(result){
             is NetworkResource.Success -> {
                 loginValidationAuthEvents.send(LoginViewModel.LoginScreenValidationAndAuthEvent.SuccessfulAuth)
+                Log.d("LoginViewModel", "signInUser success => ${result.value} ")
+                //save access and refresh tokens
+                saveAccessAndRefreshTokens(
+                  result.value
+                )
             }
             is NetworkResource.Failure -> {
-                val error = result.errorCode
-                val errorMessage = result.errorBody?.byteStream().toString()
+                val errorCode = result.errorCode
+                val errorMessage = result.errorBody
 
-                loginValidationAuthEvents.send(LoginViewModel.LoginScreenValidationAndAuthEvent.Failure(
-                    errorCode = error , errorMessage = errorMessage
-                ))
+                if(errorCode != null && errorMessage != null){
+                    loginValidationAuthEvents.send(LoginViewModel.LoginScreenValidationAndAuthEvent.Failure(
+                        errorCode = errorCode , errorMessage = errorMessage.byteStream().toString()
+                    ))
+                }
+
+
             }
         }
     }
+
+    private fun saveAccessAndRefreshTokens(value: LoginResponse) = viewModelScope.launch {
+        sessionManager.saveAccessRefreshTokensStartSession(value)
+    }
+
 
     private fun validateEmail(email : String) : ValidationResults {
         if(!Patterns.EMAIL_ADDRESS.matcher(email).matches()){
