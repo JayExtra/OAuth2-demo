@@ -27,10 +27,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.dev.james.oauthdemoapp.presentation.screens.destinations.LoginScreenDestination
+import com.dev.james.oauthdemoapp.presentation.screens.events.SignUpScreenEvents
 import com.dev.james.oauthdemoapp.presentation.viewmodel.SignUpScreenViewModel
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
-import kotlinx.coroutines.flow.collect
 
 @Composable
 @Destination
@@ -54,6 +54,8 @@ fun RegisterScreen(
 
                     Toast.makeText(context , "A verification email has been sent to your email. Please check."
                         ,Toast.LENGTH_LONG).show()
+                    navigator.popBackStack()
+                    navigator.navigate(LoginScreenDestination)
                 }
                 is SignUpScreenViewModel.ValidationAndAuthentificationEvent.Failure -> {
                     Log.d("RegisterScreen", "authEvent Error: ${validationEvent.errorCode} : ${validationEvent.errorMessage} ")

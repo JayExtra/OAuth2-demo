@@ -1,6 +1,4 @@
-package com.dev.james.oauthdemoapp.presentation.screens
-
-import com.dev.james.oauthdemoapp.data.model.LoginResponse
+package com.dev.james.oauthdemoapp.presentation.screens.events
 
 sealed class LoginScreenEvents {
     data class OnEmailFieldTextChange(val email :String) : LoginScreenEvents()

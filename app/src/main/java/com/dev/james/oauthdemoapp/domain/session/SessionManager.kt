@@ -2,10 +2,11 @@ package com.dev.james.oauthdemoapp.domain.session
 
 import android.util.Log
 import com.dev.james.oauthdemoapp.constants.NetworkResource
+import com.dev.james.oauthdemoapp.data.local.datastore.AllSessionPreferences
 import com.dev.james.oauthdemoapp.data.local.datastore.DatastoreManager
 import com.dev.james.oauthdemoapp.data.local.datastore.PrefKeysManager
 import com.dev.james.oauthdemoapp.data.model.LoginResponse
-import com.dev.james.oauthdemoapp.data.remote.AuthApi
+import com.dev.james.oauthdemoapp.data.model.RefreshTokenBody
 import com.dev.james.oauthdemoapp.data.repository.AuthRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -30,10 +31,13 @@ class SessionManager @Inject constructor(
 
     //4. replace access token , refresh token and expiry time
 
-    fun saveUserSignInStatus(status : Boolean){
-        CoroutineScope(defaultDispatcher).launch {
-            dataStoreManager.storeUserSignedInValue(PrefKeysManager.IS_USER_SIGNED_IN , status)
-        }
+
+    fun fetchAuthSessionPreferences() : Flow<AllSessionPreferences> =
+        dataStoreManager.authSessionPreferenceFlow
+
+
+    suspend fun saveUserSignInStatus(status : Boolean){
+        dataStoreManager.storeUserSignedInValue(PrefKeysManager.IS_USER_SIGNED_IN , status)
     }
 
     fun readUserSignedInStatus() : Flow<Boolean> {
@@ -47,6 +51,7 @@ class SessionManager @Inject constructor(
                 dataStoreManager.storeRefreshToken(PrefKeysManager.REFRESH_TOKEN , value.refreshToken)
                 startSession(value.accessTokenExpiry)
                 saveRefreshTokenExpiryTime(value.refreshTokenExpiry)
+                saveUserSignInStatus(true)
             }catch (e : Exception){
                 Log.e("LoginViewModel", "saveAccessAndRefreshTokens: error caching value => ${e.localizedMessage}", )
             }
@@ -81,12 +86,16 @@ class SessionManager @Inject constructor(
         }
     }
 
-    suspend fun refreshTokens(){
-        val refreshToken = getRefreshToken()
-        refreshToken?.let { token ->
-            val tokenResult = repository.refreshTokens(token)
+    suspend fun refreshTokens(refreshToken : RefreshTokenBody){
+        Log.d("SessionManager", "refreshTokens: $refreshToken ")
 
-            when(tokenResult){
+            if (refreshToken.refreshToken == "no token"){
+                return
+            }
+
+        val tokenResult = repository.refreshTokens(refreshToken)
+
+        when(tokenResult){
                 is NetworkResource.Success -> {
                     CoroutineScope(defaultDispatcher).launch {
                         dataStoreManager.storeRefreshToken(PrefKeysManager.REFRESH_TOKEN , tokenResult.value.refreshToken)
@@ -98,15 +107,16 @@ class SessionManager @Inject constructor(
                 }
 
                 is NetworkResource.Failure -> {
-                    val error = tokenResult.errorCode
+                    val errorCode = tokenResult.errorCode
                     val errorByteStream = tokenResult.errorBody?.byteStream().toString()
-                    Log.d("SessionManager", "refreshTokens: $error => $errorByteStream")
+
+                    Log.d("SessionManager", "refreshTokens: $errorCode => $errorByteStream")
                 }
                 is NetworkResource.Loading -> {
                     Log.d("SessionManager", "refreshTokens: requesting new tokens...")
                 }
             }
-        }
+
     }
 
     fun clearTokens(){
@@ -119,27 +129,13 @@ class SessionManager @Inject constructor(
         }
     }
 
-    private fun getRefreshToken(): String? {
-        var token : String? = null
-        CoroutineScope(defaultDispatcher).launch {
-            dataStoreManager.readRefreshToken(PrefKeysManager.REFRESH_TOKEN).collect {
-                token = it
-            }
-        }
-        return token
-    }
-
-
     fun isSessionExpired(
-        currentTime : Date
+        currentTime : Date ,
+        expTime : Long
     ): Boolean {
-        var expTime : Long? = null
-        CoroutineScope(defaultDispatcher).launch {
-            dataStoreManager.readSessionExpiryTime(PrefKeysManager.SESSION_EXPIRY_TIME).collect{
-                expTime = it
-            }
-        }
-        return !currentTime.after(expTime?.let { Date(it) })
+
+        Log.d("SessionManager", "isSessionExpired: currentTime => $currentTime expiryTime => ${Date(expTime)} ")
+        return currentTime.after(Date(expTime))
     }
 
 

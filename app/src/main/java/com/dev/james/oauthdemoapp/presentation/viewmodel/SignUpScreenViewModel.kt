@@ -12,14 +12,12 @@ import com.dev.james.oauthdemoapp.constants.NetworkResource
 import com.dev.james.oauthdemoapp.data.model.SignUpRequest
 import com.dev.james.oauthdemoapp.domain.SignUpUseCase
 import com.dev.james.oauthdemoapp.domain.ValidationResults
-import com.dev.james.oauthdemoapp.presentation.screens.SignUpScreenEvents
-import com.dev.james.oauthdemoapp.presentation.screens.SignUpScreenStates
+import com.dev.james.oauthdemoapp.presentation.screens.events.SignUpScreenEvents
+import com.dev.james.oauthdemoapp.presentation.screens.states.SignUpScreenStates
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import okhttp3.ResponseBody
-import retrofit2.HttpException
 import javax.inject.Inject
 
 @HiltViewModel

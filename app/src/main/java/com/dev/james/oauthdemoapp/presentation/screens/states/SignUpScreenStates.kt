@@ -1,4 +1,4 @@
-package com.dev.james.oauthdemoapp.presentation.screens
+package com.dev.james.oauthdemoapp.presentation.screens.states
 
 data class SignUpScreenStates(
     val email : String = "" ,

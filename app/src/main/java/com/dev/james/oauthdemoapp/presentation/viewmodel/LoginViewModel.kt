@@ -9,25 +9,18 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.dev.james.oauthdemoapp.constants.NetworkResource
 import com.dev.james.oauthdemoapp.data.local.datastore.DatastoreManager
-import com.dev.james.oauthdemoapp.data.local.datastore.PrefKeysManager
 import com.dev.james.oauthdemoapp.data.model.LoginRequest
 import com.dev.james.oauthdemoapp.data.model.LoginResponse
 import com.dev.james.oauthdemoapp.domain.SignInUsecase
 import com.dev.james.oauthdemoapp.domain.ValidationResults
 import com.dev.james.oauthdemoapp.domain.session.SessionManager
-import com.dev.james.oauthdemoapp.presentation.screens.LoginScreenEvents
-import com.dev.james.oauthdemoapp.presentation.screens.LoginScreenState
+import com.dev.james.oauthdemoapp.presentation.screens.events.LoginScreenEvents
+import com.dev.james.oauthdemoapp.presentation.screens.states.LoginScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.flow.merge
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
-import okhttp3.ResponseBody
-import org.json.JSONObject
 import javax.inject.Inject
-import kotlin.coroutines.CoroutineContext
 
 @HiltViewModel
 class LoginViewModel @Inject constructor(
@@ -42,18 +35,22 @@ class LoginViewModel @Inject constructor(
     val loginValidationAuthEventsChannel = loginValidationAuthEvents.receiveAsFlow()
 
     /**
+
   init {
-        val accessToken = dataStoreManager.readAccessToken(PrefKeysManager.ACCESS_TOKEN)
+      //  val accessToken = dataStoreManager.readAccessToken(PrefKeysManager.ACCESS_TOKEN)
         val refreshToken = dataStoreManager.readRefreshToken(PrefKeysManager.REFRESH_TOKEN)
 
         CoroutineScope(Dispatchers.IO).launch {
             refreshToken.collect {
                 Log.d("LoginViewModel", "access and refresh tokens: $it")
+
+                sessionManager.refreshTokens()
+
             }
         }
     }
-  **/
 
+    **/
 
 
 
@@ -66,6 +63,7 @@ class LoginViewModel @Inject constructor(
                 state = state.copy(password = event.password)
             }
             is LoginScreenEvents.Submit ->{
+                state = state.copy(showProgressBar = true)
                 submitForValidation()
             }
         }
@@ -80,7 +78,8 @@ class LoginViewModel @Inject constructor(
         ).any{ !it.success }
 
         state = state.copy(
-            emailError = emailValidationResults.errorMessage
+            emailError = emailValidationResults.errorMessage ,
+            showProgressBar = false
         )
 
         if(hasError){ return }
@@ -107,6 +106,7 @@ class LoginViewModel @Inject constructor(
                 )
             }
             is NetworkResource.Failure -> {
+                state = state.copy(showProgressBar = false)
                 val errorCode = result.errorCode
                 val errorMessage = result.errorBody
 
@@ -116,8 +116,8 @@ class LoginViewModel @Inject constructor(
                     ))
                 }
 
-
             }
+            else -> {}
         }
     }
 

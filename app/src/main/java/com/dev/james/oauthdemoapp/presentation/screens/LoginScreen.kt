@@ -8,7 +8,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color.Companion.Black
@@ -21,19 +20,20 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
 import com.dev.james.oauthdemoapp.presentation.screens.destinations.ForgotPasswordScreenDestination
+import com.dev.james.oauthdemoapp.presentation.screens.destinations.HomeScreenDestination
 import com.dev.james.oauthdemoapp.presentation.screens.destinations.RegisterScreenDestination
+import com.dev.james.oauthdemoapp.presentation.screens.events.LoginScreenEvents
 import com.dev.james.oauthdemoapp.presentation.viewmodel.LoginViewModel
+import com.dev.james.oauthdemoapp.ui.theme.Purple500
 import com.ramcosta.composedestinations.annotation.Destination
 import com.ramcosta.composedestinations.navigation.DestinationsNavigator
 
 @Composable
-@Destination(start = true)
+@Destination()
 fun LoginScreen(
     navigator : DestinationsNavigator,
     viewModel : LoginViewModel = hiltViewModel()
@@ -46,9 +46,12 @@ fun LoginScreen(
             when(events){
                 is LoginViewModel.LoginScreenValidationAndAuthEvent.ValidationSuccess -> {
                     viewModel.signInUser()
+                    Toast.makeText(context, "Signing in...", Toast.LENGTH_LONG).show()
                 }
                 is LoginViewModel.LoginScreenValidationAndAuthEvent.SuccessfulAuth -> {
-                    Toast.makeText(context , "successful sign in" , Toast.LENGTH_SHORT).show()
+                    Toast.makeText(context , "successful sign in" , Toast.LENGTH_LONG).show()
+                    navigator.popBackStack()
+                    navigator.navigate(HomeScreenDestination)
                 }
                 is LoginViewModel.LoginScreenValidationAndAuthEvent.Failure -> {
                     val errorCode = events.errorCode
@@ -60,6 +63,7 @@ fun LoginScreen(
 
         }
     }
+
 
     Column (
         horizontalAlignment = Alignment.CenterHorizontally ,
@@ -189,6 +193,13 @@ fun LoginScreen(
                 },
             color = Black,
         )
+
+        if(state.showProgressBar){
+            CircularProgressIndicator(
+                color = Purple500 ,
+                modifier = Modifier.align(alignment = Alignment.CenterHorizontally)
+            )
+        }
 
 
 

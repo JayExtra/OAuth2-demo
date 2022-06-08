@@ -2,6 +2,7 @@ package com.dev.james.oauthdemoapp.di
 
 import com.dev.james.oauthdemoapp.data.remote.AuthApi
 import com.dev.james.oauthdemoapp.data.repository.AuthRepository
+import com.dev.james.oauthdemoapp.domain.ForgotPasswordUsecase
 import com.dev.james.oauthdemoapp.domain.SignInUsecase
 import com.dev.james.oauthdemoapp.domain.SignUpUseCase
 import dagger.Module
@@ -34,4 +35,11 @@ object UseCasesModule {
         repository: AuthRepository
     ) : SignInUsecase =
         SignInUsecase(repository)
+
+    @Provides
+    @Singleton
+    fun provideForgotPasswordUsecase(
+        repository: AuthRepository
+    ) : ForgotPasswordUsecase =
+        ForgotPasswordUsecase(repository)
 }

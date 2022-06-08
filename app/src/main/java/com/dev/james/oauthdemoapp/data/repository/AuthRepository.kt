@@ -1,10 +1,7 @@
 package com.dev.james.oauthdemoapp.data.repository
 
 import com.dev.james.oauthdemoapp.constants.NetworkResource
-import com.dev.james.oauthdemoapp.data.model.LoginRequest
-import com.dev.james.oauthdemoapp.data.model.LoginResponse
-import com.dev.james.oauthdemoapp.data.model.SignUpRequest
-import com.dev.james.oauthdemoapp.data.model.SignUpResponse
+import com.dev.james.oauthdemoapp.data.model.*
 import com.dev.james.oauthdemoapp.data.remote.AuthApi
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -25,7 +22,11 @@ class AuthRepository @Inject constructor(
         api.signInUser(loginRequest)
     }
 
-    suspend fun refreshTokens(refreshToken : String) : NetworkResource<LoginResponse> = safeApiCall {
+    suspend fun refreshTokens(refreshToken : RefreshTokenBody) : NetworkResource<LoginResponse> = safeApiCall {
         api.refreshTokens(refreshToken)
+    }
+
+    suspend fun forgotPassword(email : ForgotPasswordBody) : NetworkResource<ForgotPasswordResponse> = safeApiCall {
+        api.forgotPassword(email)
     }
 }

@@ -1,4 +1,4 @@
-package com.dev.james.oauthdemoapp.presentation.screens
+package com.dev.james.oauthdemoapp.presentation.screens.events
 
 sealed class SignUpScreenEvents {
 

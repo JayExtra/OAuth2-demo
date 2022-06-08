@@ -5,8 +5,14 @@ import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.emptyPreferences
 import androidx.datastore.preferences.preferencesDataStore
+import com.dev.james.oauthdemoapp.data.local.datastore.PrefKeysManager.ACCESS_TOKEN
 import com.dev.james.oauthdemoapp.data.local.datastore.PrefKeysManager.DEFAULT_KEY
+import com.dev.james.oauthdemoapp.data.local.datastore.PrefKeysManager.IS_USER_SIGNED_IN
+import com.dev.james.oauthdemoapp.data.local.datastore.PrefKeysManager.REFRESH_TOKEN
+import com.dev.james.oauthdemoapp.data.local.datastore.PrefKeysManager.REFRESH_TOKEN_EXPIRY_TIME
+import com.dev.james.oauthdemoapp.data.local.datastore.PrefKeysManager.SESSION_EXPIRY_TIME
 import com.dev.james.oauthdemoapp.data.local.datastore.PrefKeysManager.STORE_NAME
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
@@ -19,7 +25,9 @@ class DatastoreManager @Inject constructor(
     @ApplicationContext private val context : Context
 ) {
     companion object {
-        private val Context.dataStore : DataStore<Preferences> by preferencesDataStore(name = STORE_NAME)
+        private val Context.dataStore : DataStore<Preferences> by preferencesDataStore(
+            name = STORE_NAME
+        )
     }
 
     //store our refresh token
@@ -158,4 +166,29 @@ class DatastoreManager @Inject constructor(
             it.remove(key)
         }
     }
+    
+    val authSessionPreferenceFlow = context.dataStore.data.catch {  exception -> 
+        if(exception is IOException) {
+            Log.e("DatastoreManager", "Error:error fetching preferences ", exception )
+            emit(emptyPreferences())
+        }else {
+            throw exception
+        }
+    }.map { preferences ->
+        val accessToken = preferences[ACCESS_TOKEN] ?: "no token"
+        val refreshToken = preferences[REFRESH_TOKEN] ?: "no token"
+        val sessionExpiry = preferences[SESSION_EXPIRY_TIME] ?: 0L
+        val refreshTokenExpiry = preferences[REFRESH_TOKEN_EXPIRY_TIME] ?: 0L
+        val signInStatus = preferences[IS_USER_SIGNED_IN] ?: false
+
+        AllSessionPreferences(
+            accessToken ,
+            refreshToken ,
+            sessionExpiry ,
+            refreshTokenExpiry ,
+            signInStatus
+        )
+    }
 }
+
+

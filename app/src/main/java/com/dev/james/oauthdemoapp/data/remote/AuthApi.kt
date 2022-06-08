@@ -1,9 +1,6 @@
 package com.dev.james.oauthdemoapp.data.remote
 
-import com.dev.james.oauthdemoapp.data.model.LoginRequest
-import com.dev.james.oauthdemoapp.data.model.LoginResponse
-import com.dev.james.oauthdemoapp.data.model.SignUpRequest
-import com.dev.james.oauthdemoapp.data.model.SignUpResponse
+import com.dev.james.oauthdemoapp.data.model.*
 import retrofit2.http.*
 
 interface AuthApi {
@@ -17,8 +14,15 @@ interface AuthApi {
     ) : LoginResponse
 
     @POST("auth/token/refresh")
-    @FormUrlEncoded
     suspend fun refreshTokens(
-        @Field("refresh_token") refreshToken : String
+        @Body refreshToken : RefreshTokenBody
     ) : LoginResponse
+
+
+    @POST("auth/password/forgot")
+    suspend fun forgotPassword(
+        @Body email : ForgotPasswordBody
+    ) : ForgotPasswordResponse
+
+
 }
