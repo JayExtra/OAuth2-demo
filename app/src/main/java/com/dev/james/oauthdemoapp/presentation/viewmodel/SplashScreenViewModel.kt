@@ -12,7 +12,6 @@ class SplashScreenViewModel @Inject constructor(
     private val sessionManager: SessionManager
 ) : ViewModel() {
 
-
     fun checkAuthState() : Flow<Boolean> {
        return sessionManager.readUserSignedInStatus()
     }

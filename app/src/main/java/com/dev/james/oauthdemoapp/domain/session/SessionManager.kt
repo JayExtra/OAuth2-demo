@@ -35,6 +35,14 @@ class SessionManager @Inject constructor(
     fun fetchAuthSessionPreferences() : Flow<AllSessionPreferences> =
         dataStoreManager.authSessionPreferenceFlow
 
+    suspend fun getAccessToken() : String? {
+        return dataStoreManager.readAccessTokenOnce(PrefKeysManager.ACCESS_TOKEN)
+    }
+
+    suspend fun getRefreshToken() : String? {
+        return dataStoreManager.readRefreshTokenOnce(PrefKeysManager.REFRESH_TOKEN)
+    }
+
 
     suspend fun saveUserSignInStatus(status : Boolean){
         dataStoreManager.storeUserSignedInValue(PrefKeysManager.IS_USER_SIGNED_IN , status)
@@ -60,7 +68,7 @@ class SessionManager @Inject constructor(
 
     }
 
-    fun startSession(expiryTime : Int ) {
+    private fun startSession(expiryTime : Int ) {
         val calendar = Calendar.getInstance()
         val userLoginTime = calendar.time
         calendar.time = userLoginTime
@@ -73,7 +81,7 @@ class SessionManager @Inject constructor(
         }
     }
 
-    fun saveRefreshTokenExpiryTime(refreshExpiryTime : Int){
+    private fun saveRefreshTokenExpiryTime(refreshExpiryTime : Int){
         val calendar = Calendar.getInstance()
         val userLoginTime = calendar.time
         calendar.time = userLoginTime

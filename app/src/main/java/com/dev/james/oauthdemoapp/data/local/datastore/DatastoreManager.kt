@@ -17,6 +17,7 @@ import com.dev.james.oauthdemoapp.data.local.datastore.PrefKeysManager.STORE_NAM
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import java.io.IOException
 import javax.inject.Inject
@@ -29,6 +30,10 @@ class DatastoreManager @Inject constructor(
             name = STORE_NAME
         )
     }
+
+    suspend fun readAccessTokenOnce(key : Preferences.Key<String>) = context.dataStore.data.first()[key]
+
+    suspend fun readRefreshTokenOnce(key : Preferences.Key<String>) = context.dataStore.data.first()[key]
 
     //store our refresh token
     suspend fun storeRefreshToken(key : Preferences.Key<String> , value : String) {

@@ -28,7 +28,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        testInstrumentationRunner "com.dev.james.oauthdemoapp.HiltTestRunner"
         vectorDrawables {
             useSupportLibrary true
         }
@@ -61,6 +61,7 @@ android {
 }
 
 dependencies {
+    testImplementation 'junit:junit:4.12'
     def hiltVersion = "2.40.5"
     def nav_version = "2.4.2"
     def hiltCompiler = "1.0.0"
@@ -87,11 +88,17 @@ dependencies {
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.3.1'
     implementation 'androidx.activity:activity-compose:1.3.1'
     testImplementation 'junit:junit:4.13.2'
+    testImplementation("com.squareup.okhttp3:mockwebserver:4.10.0")
+    testImplementation "com.google.truth:truth:1.1.3"
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
     androidTestImplementation "androidx.compose.ui:ui-test-junit4:$compose_version"
+    androidTestImplementation 'com.google.dagger:hilt-android-testing:2.28.3-alpha'
     debugImplementation "androidx.compose.ui:ui-tooling:$compose_version"
     debugImplementation "androidx.compose.ui:ui-test-manifest:$compose_version"
+    kaptAndroidTest 'com.google.dagger:hilt-android-compiler:2.42'
+
+
 
 
     // Coroutines

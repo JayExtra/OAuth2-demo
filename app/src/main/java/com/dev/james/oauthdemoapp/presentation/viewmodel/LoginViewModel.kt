@@ -18,6 +18,7 @@ import com.dev.james.oauthdemoapp.presentation.screens.events.LoginScreenEvents
 import com.dev.james.oauthdemoapp.presentation.screens.states.LoginScreenState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -33,6 +34,22 @@ class LoginViewModel @Inject constructor(
 
     private var loginValidationAuthEvents = Channel<LoginScreenValidationAndAuthEvent>()
     val loginValidationAuthEventsChannel = loginValidationAuthEvents.receiveAsFlow()
+
+    init {
+
+        viewModelScope.launch {
+            delay(3000)
+            val accessToken = sessionManager.getAccessToken()
+            val refreshToken = sessionManager.getRefreshToken()
+            accessToken?.let {
+                Log.d("LoginViewModel", "access token : $it ")
+            } ?:  Log.d("LoginViewModel", "access token : no access token ")
+            refreshToken?.let {
+                Log.d("LoginViewModel", "refresh token : $it ")
+
+            } ?:   Log.d("LoginViewModel", "refresh token : no refresh token ")
+        }
+    }
 
     /**
 

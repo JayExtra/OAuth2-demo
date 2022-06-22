@@ -23,6 +23,7 @@ import com.dev.james.oauthdemoapp.ui.theme.OAuthDemoAppTheme
 import com.ramcosta.composedestinations.DestinationsNavHost
 import com.ramcosta.composedestinations.manualcomposablecalls.composable
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectIndexed
 import kotlinx.coroutines.launch
 import java.util.*
 
@@ -74,4 +75,23 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        lifecycleScope.launchWhenStarted {
+            viewModel.authSessionFlow.collect { preferences ->
+                val date = Calendar.getInstance()
+                if (preferences.signInStatus){
+                    Log.d("MainActivity", "onResume: currently logged in. Refresh tokens => ${preferences.refreshToken} , access token => ${preferences.accessToken} ")
+                    if(viewModel.isSessionExpired( date.time , preferences.sessionExpiry )){
+                        Log.d("MainActivity", "onResume: session has expired , refreshing tokens")
+                        viewModel.refreshTokens(preferences.refreshToken)
+                    }else {
+                        Log.d("MainActivity", "onResume: current session is okay")
+                    }
+                }else{
+                    Log.d("MainActivity", "onResume: currently not logged in")
+                }
+            }
+        }
+    }
 }

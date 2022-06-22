@@ -31,7 +31,8 @@ fun HomeScreen(
     viewModel : HomeViewModel = hiltViewModel()
 ) {
     val context = LocalContext.current
-    LaunchedEffect(key1 = true){
+    /**
+    LaunchedEffect(key1 = context){
         viewModel.authSessionFlow.collect { session ->
             //check if access token has expired if we are currently signed in
             Log.d("HomeScreen", "onCreate: access token=> ${session.accessToken}")
@@ -45,10 +46,10 @@ fun HomeScreen(
                     viewModel.refreshTokens(session.refreshToken)
             }else {
                 Log.d("HomeScreen", "onCreate: session is okay")
-
             }
         }
     }
+    **/
     Scaffold(
         topBar = {
             HomeScreenTopBar(
