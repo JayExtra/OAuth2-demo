@@ -1,8 +1,11 @@
 package com.dev.james.oauthdemoapp.di
 
+import com.dev.james.oauthdemoapp.data.local.room.Dao
+import com.dev.james.oauthdemoapp.data.local.room.WillManagerDatabase
 import com.dev.james.oauthdemoapp.data.remote.AuthApi
 import com.dev.james.oauthdemoapp.data.repository.AuthRepository
 import com.dev.james.oauthdemoapp.domain.ForgotPasswordUsecase
+import com.dev.james.oauthdemoapp.domain.GetCategoriesUsecase
 import com.dev.james.oauthdemoapp.domain.SignInUsecase
 import com.dev.james.oauthdemoapp.domain.SignUpUseCase
 import dagger.Module
@@ -18,9 +21,11 @@ object UseCasesModule {
     @Provides
     @Singleton
     fun provideAuthRepo(
-        api : AuthApi
+        api : AuthApi ,
+        dao: Dao,
+        db : WillManagerDatabase
     ) : AuthRepository =
-        AuthRepository(api)
+        AuthRepository(api ,dao , db)
 
     @Provides
     @Singleton
@@ -42,4 +47,11 @@ object UseCasesModule {
         repository: AuthRepository
     ) : ForgotPasswordUsecase =
         ForgotPasswordUsecase(repository)
+
+    @Provides
+    @Singleton
+    fun provideCategoryUsecase(
+        repository: AuthRepository
+    ) : GetCategoriesUsecase =
+        GetCategoriesUsecase(repository)
 }

@@ -1,44 +1,53 @@
 package com.dev.james.oauthdemoapp.presentation.viewmodel
 
-import android.util.Log
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.dev.james.oauthdemoapp.constants.Resource
 import com.dev.james.oauthdemoapp.data.model.RefreshTokenBody
+import com.dev.james.oauthdemoapp.domain.GetCategoriesUsecase
+import com.dev.james.oauthdemoapp.domain.models.Categories
 import com.dev.james.oauthdemoapp.domain.session.SessionManager
+import com.dev.james.oauthdemoapp.presentation.screens.states.HomeScreenStates
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import java.util.*
 import javax.inject.Inject
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    private val sessionManager : SessionManager
+    private val sessionManager : SessionManager ,
+    private val categoriesUsecase: GetCategoriesUsecase
 ) : ViewModel() {
 
+    var homeScreenState by mutableStateOf(HomeScreenStates())
+    val categoryList = categoriesUsecase.execute()
+
     init {
-        viewModelScope.launch {
-            delay(3000)
-            val accessToken = sessionManager.getAccessToken()
-            val refreshToken = sessionManager.getRefreshToken()
-            accessToken?.let {
-                Log.d("HomeViewModel", "access token : $it ")
+        homeScreenState = homeScreenState.copy(showGridProgressBar = true)
+    }
 
-            }?:  Log.d("HomeViewModel", "access token : $accessToken ")
-            refreshToken?.let {
-                Log.d("HomeViewModel", "refresh token : $it ")
-
-            } ?: Log.d("HomeViewModel", "refresh token : $refreshToken ")
+    fun updateScreenState(data: List<Categories>?) {
+        homeScreenState = homeScreenState.copy(showGridProgressBar = false)
+        data?.let { categories ->
+            homeScreenState = homeScreenState.copy(categoryList = categories)
         }
     }
-    val authSessionFlow = sessionManager.fetchAuthSessionPreferences()
 
-    fun isSessionExpired(
-        currentTime : Date,
-        expiryDate : Long
-    ) : Boolean {
-        return sessionManager.isSessionExpired(currentTime , expiryDate)
+    fun updateErrorState(message: String?, data: List<Categories>?){
+        homeScreenState = homeScreenState.copy(showGridProgressBar = false)
+        message?.let {
+            homeScreenState = homeScreenState.copy(error = it)
+        }
+        data?.let {
+            homeScreenState = homeScreenState.copy(categoryList = it)
+        }
+
     }
 
     fun refreshTokens(refreshToken : String ) = viewModelScope.launch {
@@ -50,4 +59,5 @@ class HomeViewModel @Inject constructor(
         sessionManager.saveUserSignInStatus(false)
         sessionManager.clearTokens()
     }
+
 }
