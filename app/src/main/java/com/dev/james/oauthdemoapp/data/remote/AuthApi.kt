@@ -1,6 +1,8 @@
 package com.dev.james.oauthdemoapp.data.remote
 
+import com.dev.james.oauthdemoapp.constants.Consts
 import com.dev.james.oauthdemoapp.data.model.*
+import com.dev.james.oauthdemoapp.data.remote.dto.PartsMainResponseDto
 import retrofit2.http.*
 
 interface AuthApi {
@@ -23,6 +25,10 @@ interface AuthApi {
     suspend fun forgotPassword(
         @Body email : ForgotPasswordBody
     ) : ForgotPasswordResponse
+
+
+    @GET(Consts.CATEGORY_DIAGRAMS_ENDPOINT)
+    suspend fun getCategoryDiagrams() : PartsMainResponseDto
 
 
 }

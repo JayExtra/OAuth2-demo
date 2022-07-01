@@ -1,0 +1,45 @@
+package com.dev.james.oauthdemoapp.data.remote.dto
+
+import com.google.gson.annotations.SerializedName
+
+data class PartDto(
+    val code: String,
+    val country_of_origin: String,
+    val cylinder_type: String,
+    val dealer_price: Int,
+    val dealer_price_per_meter: Int,
+    val dealer_price_percentage: Int,
+    val description: String,
+    val detail: String,
+    val drivers: String,
+    val featured: Boolean,
+    val guide_link: String,
+    val height: Int,
+    val id: String,
+    @SerializedName("images")
+    val imageDto: List<ImageDto>,
+    val length: Int,
+    val material: String,
+    val meta_description: String,
+    val meta_keywords: String,
+    val name: String,
+    val oem_compatible: String,
+    val oem_number: String,
+    val part_diagram_number: Int,
+    val part_number: String,
+    val price: Int,
+    val price_per_meter: Int,
+    val quantity_on_hand: Int,
+    val quantity_on_order: Int,
+    val quantity_on_sale_order: Int,
+    val quantity_recommended: Int,
+    val sale_price: Int,
+    val sale_price_per_meter: Int,
+    val seo: String,
+    val status: String,
+    val types: List<Any>,
+    val video_url: String,
+    val weight: Int,
+    val where_used: String,
+    val width: Int
+)
