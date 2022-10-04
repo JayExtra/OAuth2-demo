@@ -29,6 +29,7 @@ import coil.request.ImageRequest
 import com.dev.james.oauthdemoapp.R
 import com.dev.james.oauthdemoapp.constants.Resource
 import com.dev.james.oauthdemoapp.domain.models.Categories
+import com.dev.james.oauthdemoapp.presentation.screens.destinations.CategoryScreenDestination
 import com.dev.james.oauthdemoapp.presentation.screens.destinations.LoginScreenDestination
 import com.dev.james.oauthdemoapp.presentation.screens.states.HomeScreenStates
 import com.dev.james.oauthdemoapp.presentation.viewmodel.HomeViewModel
@@ -128,13 +129,16 @@ fun HomeScreen(
                                 items(state.categoryList.size){ itemPos ->
                                     CategoryItem(
                                         category = state.categoryList[itemPos],
-                                        onCardClicked = { itemId ->
-                                              //trigger navigation
+                                        onCardClicked = { category ->
+                                              //trigger navigation with category argument
                                             Toast.makeText(
                                                 context ,
-                                                "clicked at category id : $itemId"  ,
+                                                "clicked at category id : ${category.name}"  ,
                                                 Toast.LENGTH_SHORT
                                             ).show()
+                                            navigator.navigate(
+                                                CategoryScreenDestination(category)
+                                            )
                                         } ,
                                         context = context ,
                                         state = state
@@ -178,7 +182,7 @@ fun HomeScreenTopBar(
 fun CategoryItem(
     modifier: Modifier = Modifier ,
     category : Categories ,
-    onCardClicked: (id : String) -> Unit ,
+    onCardClicked: (category : Categories ) -> Unit ,
     context : Context,
     state : HomeScreenStates
 ){
@@ -187,7 +191,7 @@ fun CategoryItem(
             .fillMaxSize()
             .padding(8.dp)
             .clickable {
-                onCardClicked(category.id)
+                onCardClicked(category)
             },
         shape = RoundedCornerShape(15.dp),
         elevation = 5.dp

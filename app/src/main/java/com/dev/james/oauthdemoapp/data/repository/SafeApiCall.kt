@@ -6,7 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 
-open class BaseRepositoryApiCall {
+open class SafeApiCall {
     suspend fun <T> safeApiCall(
         apiCall : suspend () -> T
      ) : NetworkResource<T> {

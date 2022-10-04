@@ -1,5 +1,6 @@
 package com.dev.james.oauthdemoapp.presentation.screens
 
+import android.content.Context
 import android.graphics.Color
 import android.widget.ImageButton
 import androidx.compose.foundation.Image
@@ -15,6 +16,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color.Companion.Black
 import androidx.compose.ui.graphics.Color.Companion.Blue
 import androidx.compose.ui.graphics.Color.Companion.White
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
@@ -22,13 +24,19 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.rememberAsyncImagePainter
+import coil.request.ImageRequest
 import com.dev.james.oauthdemoapp.R
+import com.dev.james.oauthdemoapp.domain.models.Part
 
 @Composable
-@Preview()
-fun SinglePartCard(){
+fun SinglePartCards(
+    modifier: Modifier = Modifier,
+    part : Part,
+    context: Context
+){
     Card(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxSize()
             .padding(8.dp),
         shape = RoundedCornerShape(15.dp),
@@ -45,13 +53,18 @@ fun SinglePartCard(){
                 contentAlignment = Alignment.Center
             ) {
                 Image(
+                    painter = rememberAsyncImagePainter(
+                        ImageRequest.Builder(context = context )
+                            .data(data = part.image)
+                            .apply(block = fun ImageRequest.Builder.() {
+                                placeholder(R.drawable.ic_launcher_foreground)
+                                crossfade(true)
+                            }).build()
+                    ),
+                    contentDescription = "part diagram",
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(8.dp)
-                        .clip(shape = RoundedCornerShape(15.dp)),
-                    painter = painterResource(id = R.drawable.ic_baseline_image_24),
-                    contentDescription = "test image",
-
+                        .fillMaxSize() ,
+                    contentScale = ContentScale.Crop
                 )
 
                 Box( modifier = Modifier
@@ -62,7 +75,7 @@ fun SinglePartCard(){
                     Image(
                         modifier = Modifier.height(40.dp).width(40.dp),
                         painter = painterResource(id = R.drawable.ic_favorite_border),
-                        contentDescription = "test image"
+                        contentDescription = "favourite icon"
                     )
                 }
 
@@ -78,7 +91,7 @@ fun SinglePartCard(){
 
             ) {
                 Text(
-                    text = "HETACHI p1000d7 engine spark plug",
+                    text = part.name,
                     color = Black ,
                     fontFamily = FontFamily.SansSerif ,
                     fontSize = 25.sp,
@@ -87,7 +100,7 @@ fun SinglePartCard(){
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "OEM : MX02",
+                    text = part.oemNumber,
                     color = Black ,
                     fontFamily = FontFamily.SansSerif ,
                     fontSize = 18.sp,
@@ -95,7 +108,7 @@ fun SinglePartCard(){
                 )
                 Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Material : Rubber",
+                    text = "Material : ${part.material}",
                     color = Black ,
                     fontFamily = FontFamily.SansSerif ,
                     fontSize = 18.sp,
@@ -104,7 +117,7 @@ fun SinglePartCard(){
 
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
-                    text = "Ksh.4000",
+                    text = "Ksh.${part.price}",
                     color = Black ,
                     fontFamily = FontFamily.SansSerif ,
                     fontSize = 32.sp,
