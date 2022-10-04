@@ -1,4 +1,4 @@
-package com.dev.james.oauthdemoapp.data.local.room
+package com.dev.james.oauthdemoapp.data.local.room.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

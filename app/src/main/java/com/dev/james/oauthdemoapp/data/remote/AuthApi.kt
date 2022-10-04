@@ -2,7 +2,8 @@ package com.dev.james.oauthdemoapp.data.remote
 
 import com.dev.james.oauthdemoapp.constants.Consts
 import com.dev.james.oauthdemoapp.data.model.*
-import com.dev.james.oauthdemoapp.data.remote.dto.PartsMainResponseDto
+import com.dev.james.oauthdemoapp.data.remote.dto.CategoryDiagramsMainResponseDto
+import com.dev.james.oauthdemoapp.data.remote.dto.CategoryMainResponseDto
 import retrofit2.http.*
 
 interface AuthApi {
@@ -28,7 +29,12 @@ interface AuthApi {
 
 
     @GET(Consts.CATEGORY_DIAGRAMS_ENDPOINT)
-    suspend fun getCategoryDiagrams() : PartsMainResponseDto
+    suspend fun getCategoryDiagrams() : CategoryDiagramsMainResponseDto
+
+    @GET("${Consts.CATEGORY_DIAGRAMS_ENDPOINT}/{catId}")
+    suspend fun getCategoryDetails(
+        @Path(value = "catId") catId : String
+    ) : CategoryMainResponseDto
 
 
 }

@@ -2,7 +2,7 @@ package com.dev.james.oauthdemoapp.data.remote.dto
 
 import com.google.gson.annotations.SerializedName
 
-data class PartsMainResponseDto(
+data class CategoryDiagramsMainResponseDto(
     @SerializedName("data")
     val dataDto: DataDto,
     val links: Any,
