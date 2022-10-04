@@ -126,6 +126,7 @@ fun CategoryScreen(
 
 
 
+            //this is a small search bar
             SearchBar(onSearchClicked = {
                 //trigger search function in vm
                    categoryScreenViewModel.searchFavourite(it)
